@@ -1,0 +1,505 @@
+═══════════════════════════════════════════════════════════════════════════════
+    ARQUITECTURA SIMPLIFICADA - DOCUMENTACIÓN DEL CHATBOT K83 FYC
+═══════════════════════════════════════════════════════════════════════════════
+
+Esta guía explica cómo funciona el chatbot de reclutamiento de manera simple
+y estructurada. Enfoque: Estabilidad, Mantenibilidad, Facilidad de Uso.
+
+═══════════════════════════════════════════════════════════════════════════════
+ÍNDICE RÁPIDO
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Visión General del Sistema
+2. Componentes Principales
+3. Flujo de Conversación
+4. Gestión de Vacantes (JSON)
+5. Envío de Correos
+6. Estructura de Archivos
+7. Cómo Agregar/Modificar Funciones
+8. Troubleshooting
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 1: VISIÓN GENERAL DEL SISTEMA
+═══════════════════════════════════════════════════════════════════════════════
+
+EL FLUJO GENERAL:
+
+┌─────────────────┐
+│  Usuario entra  │ Abre el navegador → http://localhost:5000
+│   al chatbot    │
+└────────┬────────┘
+         │
+         ↓
+┌─────────────────────────┐
+│ Frontend (HTML + JS)    │ Lee vacantes.json → Muestra interfaz
+└────────┬────────────────┘
+         │
+         ↓
+┌─────────────────────────┐
+│ Servidor Python (Flask) │ Procesa mensajes → Genera respuestas
+└────────┬────────────────┘
+         │
+         ↓
+┌─────────────────────────┐
+│ Chatbot (chatbot.py)    │ Carga vacantes.json → Matching de intents
+└────────┬────────────────┘
+         │
+         ↓
+┌─────────────────────────┐
+│ Envío de Correo (SMTP)  │ CV → Correo a RH (Nodemailer en backend)
+└──────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 2: COMPONENTES PRINCIPALES
+═══════════════════════════════════════════════════════════════════════════════
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║ 1. FRONTEND (templates/index.html + JavaScript)                          ║
+╠═══════════════════════════════════════════════════════════════════════════╣
+║ Responsabilidad: Interfaz visual del usuario                             ║
+║ Incluye:                                                                  ║
+║   - Chat visual con mensajes bot/usuario                                 ║
+║   - Botones interactivos                                                 ║
+║   - Carga de archivos (CV)                                               ║
+║   - Gestión de estado conversacional (estado)                            ║
+║   - Barra de progreso                                                    ║
+║   - Diseño responsive y moderno                                          ║
+║                                                                           ║
+║ No toca: Lógica de negocio, archivos, correos                           ║
+║ Comunica con: Backend (app.py) vía HTTP                                 ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║ 2. BACKEND - SERVIDOR FLASK (app.py)                                      ║
+╠═══════════════════════════════════════════════════════════════════════════╣
+║ Responsabilidad: Procesar solicitudes, orquestar servicios               ║
+║ Funciones principales:                                                    ║
+║   - @app.route('/')           → Sirve la página HTML                     ║
+║   - @app.route('/chat')       → Procesa mensajes de chat                 ║
+║   - @app.route('/upload-cv')  → Maneja carga de CVs                      ║
+║   - send_recruitment_email()  → Envía correos con SMTP                   ║
+║                                                                           ║
+║ No toca: Lógica de conversación (eso es chatbot.py)                     ║
+║ Comunica con: Frontend (HTTP), chatbot.py, sistema de archivos, SMTP    ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║ 3. CHATBOT - LÓGICA DE CONVERSACIÓN (chatbot.py)                         ║
+╠═══════════════════════════════════════════════════════════════════════════╣
+║ Responsabilidad: Generar respuestas inteligentes                         ║
+║ Funciones principales:                                                    ║
+║   - get_chatbot_response()    → Función principal de respuesta           ║
+║   - get_vacantes_by_area()    → Obtiene vacantes de un área             ║
+║   - match_area_from_message() → Detecta qué área busca el usuario       ║
+║   - build_email_payload()     → Prepara datos para correo                ║
+║   - predict_class()           → Usa ML para detectar intents             ║
+║                                                                           ║
+║ Carga:                                                                    ║
+║   - vacantes.json  → Lista de vacantes disponibles                       ║
+║   - intents.json   → Patrones de conversación                            ║
+║   - Modelo ML      → Para clasificación de intents                       ║
+║                                                                           ║
+║ Retorna: Respuesta + botones + estado + info de correo                  ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║ 4. DATOS - VACANTES JSON (vacantes.json)                                  ║
+╠═══════════════════════════════════════════════════════════════════════════╣
+║ Responsabilidad: Almacenar información de vacantes                       ║
+║ Estructura:                                                               ║
+║ {                                                                         ║
+║   "vacantes": [                                                           ║
+║     {                                                                     ║
+║       "id": "prod-op-001",                                               ║
+║       "area": "Producción",                                              ║
+║       "puesto": "Operario de Producción",                                ║
+║       "tipo": "operativo",                                               ║
+║       "descripcion": "...",                                              ║
+║       "requisitos": [],                                                  ║
+║       "requerimiento_cv": true,                                          ║
+║       "salario_aproximado": "$1,500 - $1,800"                            ║
+║     }                                                                     ║
+║   ],                                                                      ║
+║   "areas": [...]                                                          ║
+║ }                                                                         ║
+║                                                                           ║
+║ EDITADO POR: RH (sin código, solo JSON)                                  ║
+║ LEÍDO POR: chatbot.py al iniciar                                         ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║ 5. CONFIGURACIÓN (. env)                                                  ║
+╠═══════════════════════════════════════════════════════════════════════════╣
+║ Responsabilidad: Almacenar configuraciones sensibles                     ║
+║ Contiene:                                                                 ║
+║   - MAIL_HOST, MAIL_PORT, MAIL_USER, MAIL_PASS → Configuración SMTP     ║
+║   - RH_EMAIL                    → Email destino de CVs                   ║
+║   - SECRET_KEY                  → Clave de sesión                        ║
+║   - Otros parámetros            → Configuración general                  ║
+║                                                                           ║
+║ NUNCA COMPARTIR: No se sube a GitHub (.gitignore)                       ║
+║ EDITADO POR: Admin/Dev (configuración inicial y cambios)                ║
+║ LEÍDO POR: app.py al iniciar                                             ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 3: FLUJO DE CONVERSACIÓN (EL USUARIO TÍPICO)
+═══════════════════════════════════════════════════════════════════════════════
+
+PASO 1: USUARIO LLEGA AL CHATBOT
+────────────────────────────────
+Usuario abre: http://localhost:5000
+↓
+Frontend carga HTML/CSS/JS
+↓
+Chatbot muestra saludo inicial
+"¡Hola! Bienvenido a K83 FYC..."
+
+PASO 2: USUARIO SELECCIONA UNA VACANTE
+────────────────────────────────────────
+Usuario: "Quiero ver vacantes"
+↓
+Frontend envía: POST /chat con { message: "Quiero ver vacantes", state: {} }
+↓
+app.py llama a: get_chatbot_response()
+↓
+chatbot.py detecta: "vacante" en el mensaje
+↓
+chatbot.py retorna: "¿Qué área te interesa?" + botones [Producción, Calidad, ...]
+↓
+Frontend muestra los botones
+
+PASO 3: USUARIO SELECCIONA UN ÁREA
+──────────────────────────────────
+Usuario: Hace clic en "Producción"
+↓
+Frontend envía: POST /chat con { message: "Producción", state: { ... } }
+↓
+chatbot.py llama: get_vacantes_by_area("Producción")
+↓
+chatbot.py carga vacantes.json → Encuentra vacantes de Producción
+↓
+chatbot.py retorna: "Tenemos X vacantes. ¿Operativo o Gerencial?"
+↓
+Frontend muestra opciones
+
+PASO 4: USUARIO SELECCIONA TIPO DE PUESTO
+──────────────────────────────────────────
+Usuario: "Operativo"
+↓
+chatbot.py detecta tipo: "operativo"
+↓
+chatbot.py retorna: "Realizaremos una entrevista. ¿Estás listo?"
+↓
+Frontend muestra botones: [Sí, No]
+
+PASO 5: USUARIO RESPONDE PREGUNTAS DE ENTREVISTA
+─────────────────────────────────────────────────
+Usuario responde 3 preguntas:
+- ¿Experiencia en turnos?
+- ¿Disponibilidad?
+- ¿Experiencia en manufactura?
+↓
+chatbot.py guarda respuestas en state['interviewAnswers']
+↓
+Después de 3 preguntas: "Ahora necesitamos tu CV en PDF"
+
+PASO 6: USUARIO SUBE CV
+───────────────────────
+Usuario: Sube archivo PDF
+↓
+Frontend envía: POST /upload-cv con archivo
+↓
+app.py guarda archivo en: uploads/20260529_134500_cv.pdf
+↓
+app.py actualiza state: { cvUploaded: true, cvFilePath: "..." }
+↓
+app.py detecta: Área + Puesto + CV completados
+↓
+app.py llama: build_email_payload() en chatbot.py
+↓
+app.py llama: send_recruitment_email()
+↓
+SMTP envía correo a RH_EMAIL con CV adjunto
+↓
+Frontend muestra: "Tu CV fue enviado correctamente ✅"
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 4: GESTIÓN DE VACANTES (EL SISTEMA JSON)
+═══════════════════════════════════════════════════════════════════════════════
+
+¿CÓMO FUNCIONA?
+
+1. AL INICIAR EL SERVIDOR:
+   chatbot.py lee vacantes.json
+   ↓
+   Carga todas las vacantes en memoria: vacantes = [...]
+   ↓
+   Carga todas las áreas en memoria: areas = [...]
+
+2. DURANTE LA CONVERSACIÓN:
+   Cuando usuario menciona un área:
+   ↓
+   chatbot.py llama: get_vacantes_by_area("Producción")
+   ↓
+   Busca en la lista en memoria (muy rápido)
+   ↓
+   Retorna vacantes que coinciden
+
+3. SI RH EDITA vacantes.json:
+   Abre el archivo
+   ↓
+   Modifica una vacante (salario, requisitos, etc.)
+   ↓
+   Guarda el archivo
+   ↓
+   LOS CAMBIOS SE CARGAN LA PRÓXIMA VEZ que se reinicie el servidor
+
+⚠️ IMPORTANTE: Para que los cambios tomen efecto:
+   - Si el servidor está corriendo: Presiona Ctrl+C para detenerlo
+   - Ejecuta nuevamente: python app.py
+   - Los nuevos cambios se cargarán
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 5: ENVÍO DE CORREOS (EMAIL CON SMTP)
+═══════════════════════════════════════════════════════════════════════════════
+
+CUANDO SE DISPARA:
+─────────────────
+- Usuario sube CV
+- app.py detecta que la postulación está "completa"
+- Llama a: send_recruitment_email(payload)
+
+QUÉ SUCEDE:
+──────────
+1. send_recruitment_email() construye un mensaje de correo con:
+   - Remitente: MAIL_FROM (de .env)
+   - Destinatario: RH_EMAIL (de .env)
+   - Asunto: "[K83 FYC] Nueva Postulación - Nombre - Área"
+   - Cuerpo: Información del candidato en HTML
+   - Adjuntos: CV en PDF
+
+2. CONECTA al servidor SMTP (ej: smtp.gmail.com:587)
+   - Usa credenciales de .env: MAIL_USER + MAIL_PASS
+   - Inicia TLS para seguridad
+
+3. ENVÍA el correo
+   - Si funciona: Retorna { success: true }
+   - Si falla: Retorna { success: false, message: "error" }
+
+4. Frontend muestra al usuario:
+   - Si éxito: "Tu CV fue enviado correctamente ✅"
+   - Si fallo: "Hubo un error. Intenta más tarde."
+
+VARIABLES DE .env REQUERIDAS:
+──────────────────────────────
+MAIL_HOST    = Servidor SMTP (ej: smtp.gmail.com)
+MAIL_PORT    = Puerto (ej: 587)
+MAIL_USER    = Usuario SMTP (tu email)
+MAIL_PASS    = Contraseña de aplicación
+RH_EMAIL     = Correo destino
+MAIL_FROM    = Remitente
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 6: ESTRUCTURA DE ARCHIVOS
+═══════════════════════════════════════════════════════════════════════════════
+
+chatbot-0.1/
+│
+├── app.py                               ← Servidor principal (Flask)
+├── chatbot.py                           ← Lógica de conversación
+├── training.py                          ← Entrenamiento de modelo (no tocar)
+├── test_chatbot.py                      ← Tests (no tocar)
+│
+├── vacantes.json                        ← ⭐ EDITAR AQUÍ (vacantes)
+├── intents.json                         ← Intents de conversación
+├── .env                                 ← ⭐ CONFIGURAR AQUÍ (correo)
+├── .env.example                         ← Plantilla de .env
+│
+├── chatbot_model.h5                     ← Modelo ML (no tocar)
+├── words.pkl                            ← Palabras del modelo (no tocar)
+├── classes.pkl                          ← Clases del modelo (no tocar)
+│
+├── requirements.txt                     ← Dependencias Python
+├── templates/
+│   └── index.html                       ← Frontend (HTML/CSS/JS)
+│
+├── uploads/                             ← Carpeta de CVs subidos
+│   ├── 20260529_134500_cv.pdf
+│   └── ...
+│
+└── GUIAS/
+    ├── GUIA_EDITAR_VACANTES.txt         ← Cómo editar vacantes (RH)
+    ├── GUIA_CONFIGURAR_CORREOS.txt      ← Cómo configurar correo (Admin)
+    └── ARQUITECTURA.txt                 ← Esta guía
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 7: CÓMO AGREGAR O MODIFICAR FUNCIONES
+═══════════════════════════════════════════════════════════════════════════════
+
+ESCENARIO 1: Agregar una nueva pregunta en la entrevista
+─────────────────────────────────────────────────────────
+
+Archivo a editar: chatbot.py
+
+Paso 1: Abre chatbot.py
+Paso 2: Busca la función get_chatbot_response()
+Paso 3: Encuentra la sección de entrevista (busca "interview_stage")
+Paso 4: Agrega una nueva rama elif:
+
+    elif next_state.get('interview_stage') == 'q3_nueva_pregunta':
+        if 'sí' in normalized or 'si' in normalized:
+            next_state['interviewAnswers'].append('✓ Respuesta positiva')
+        else:
+            next_state['interviewAnswers'].append('✗ Respuesta negativa')
+        
+        response = "Perfecto, hemos terminado la entrevista..."
+        next_state['step'] = 'cv_upload'
+
+Paso 5: Actualiza la pregunta anterior para apuntar a esta:
+        next_state['interview_stage'] = 'q3_nueva_pregunta'
+
+Paso 6: Guarda y prueba
+
+═════════════════════════════════════════════════════════════════════════════
+
+ESCENARIO 2: Cambiar el mensaje de respuesta
+──────────────────────────────────────────────
+
+Archivo a editar: chatbot.py
+
+Paso 1: Busca el texto que quieres cambiar (Ctrl+F)
+Paso 2: Edita la cadena de texto
+Paso 3: Guarda
+Paso 4: Reinicia el servidor
+
+Ejemplo:
+ANTES: response = "¡Hola! Bienvenido a K83 FYC 🎯"
+DESPUÉS: response = "¡Bienvenida! Somos K83 FYC, empresa automotriz..."
+
+═════════════════════════════════════════════════════════════════════════════
+
+ESCENARIO 3: Agregar un nuevo flujo (ej: preguntas frecuentes)
+───────────────────────────────────────────────────────────────
+
+Paso 1: Abre chatbot.py
+Paso 2: Agrega una nueva sección en get_chatbot_response():
+
+    elif 'preguntas frecuentes' in normalized or 'faq' in normalized:
+        response = """
+        **Preguntas Frecuentes:**
+        
+        ¿Cuál es el horario?
+        De lunes a viernes, 8am a 5pm
+        
+        ¿Se ofrecen beneficios?
+        Sí, incluimos... (etc)
+        """
+        buttons = [
+            {'label': 'Volver a vacantes', 'value': 'Ver vacantes'}
+        ]
+
+Paso 3: Guarda y prueba
+
+═════════════════════════════════════════════════════════════════════════════
+
+ESCENARIO 4: Editar requisitos/descripción sin tocar código
+────────────────────────────────────────────────────────────
+
+Archivo a editar: vacantes.json
+
+Ver GUÍA_EDITAR_VACANTES.txt para detalles completos
+Resumen: Abre JSON, modifica requisitos, guarda, reinicia servidor
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 8: TROUBLESHOOTING RÁPIDO
+═══════════════════════════════════════════════════════════════════════════════
+
+PROBLEMA: El chatbot no inicia
+──────────────────────────────
+$ python app.py
+Error: No module named 'flask'
+
+SOLUCIÓN:
+$ pip install -r requirements.txt
+
+─────────────────────────────────────────────────────────────────────────────
+
+PROBLEMA: El servidor inicia pero no carga vacantes
+────────────────────────────────────────────────────
+Ver logs: "Advertencia: No se pudo cargar vacantes.json"
+
+CAUSAS:
+- vacantes.json no existe
+- JSON tiene sintaxis inválida
+- Archivo en carpeta incorrecta
+
+SOLUCIÓN:
+1. Verifica que vacantes.json existe en la raíz
+2. Valida JSON en jsonlint.com
+3. Copia el contenido correcto desde .env.example
+
+─────────────────────────────────────────────────────────────────────────────
+
+PROBLEMA: El correo no se envía
+────────────────────────────────
+LOGS muestran: "Error de autenticación"
+
+CAUSAS:
+- MAIL_USER incorrecto
+- MAIL_PASS incorrecto
+- Archivo .env no existe o mal configurado
+
+SOLUCIÓN:
+1. Verifica .env existe en raíz
+2. Valida MAIL_USER sea tu email completo
+3. Usa contraseña de aplicación (no normal)
+4. Reinicia servidor: Ctrl+C + python app.py
+
+─────────────────────────────────────────────────────────────────────────────
+
+PROBLEMA: Nueva vacante no aparece en el chatbot
+──────────────────────────────────────────────
+SOLUCIÓN:
+1. Abre vacantes.json, verifica tu vacante
+2. Valida JSON (jsonlint.com)
+3. Reinicia servidor: Ctrl+C + python app.py
+4. Prueba nuevamente
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 9: RESUMEN - SISTEMA SIMPLICADO
+═══════════════════════════════════════════════════════════════════════════════
+
+Lo que hicimos:
+
+✅ Simplificamos la lógica de conversación
+   - Flujo claro: Área → Puesto → Entrevista → CV
+   - Menos intents complejos
+   - Más fácil de mantener
+
+✅ Sacamos vacantes del código
+   - Ahora en vacantes.json
+   - RH puede editar sin programar
+   - Cambios dinámicos
+
+✅ Mejoramos envío de correos
+   - Mejor validación
+   - Logs claros
+   - Manejo de errores
+
+✅ Creamos documentación clara
+   - Guía para RH
+   - Guía de configuración
+   - Arquitectura documentada
+
+RESULTADO:
+- Sistema estable y mantenible
+- Fácil de entender
+- Fácil de extender
+- Listo para producción
+
+═══════════════════════════════════════════════════════════════════════════════
+
+¡El chatbot está listo para usar! 🚀
+
+═══════════════════════════════════════════════════════════════════════════════
