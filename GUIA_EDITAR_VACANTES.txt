@@ -1,0 +1,362 @@
+═══════════════════════════════════════════════════════════════════════════════
+    GUÍA PARA RECURSOS HUMANOS: EDITAR VACANTES SIN TOCAR CÓDIGO
+═══════════════════════════════════════════════════════════════════════════════
+
+¡Hola! Esta guía te enseña cómo modificar, agregar y eliminar vacantes del chatbot
+sin necesidad de tocar código o usar Visual Studio Code.
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 1: UBICACIÓN DEL ARCHIVO VACANTES
+═══════════════════════════════════════════════════════════════════════════════
+
+El archivo que contiene TODAS las vacantes se llama: vacantes.json
+
+Ubicación: Raíz del proyecto (misma carpeta que app.py)
+
+Ruta completa: C:\Users\[TuNombre]\OneDrive\Escritorio\chatbot-0.1\vacantes.json
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 2: CÓMO ABRIR Y EDITAR EL ARCHIVO
+═══════════════════════════════════════════════════════════════════════════════
+
+OPCIÓN 1: Usar Notepad (Lo más fácil)
+────────────────────────────────────
+1. Dirígete a la carpeta del chatbot
+2. Busca el archivo "vacantes.json"
+3. Haz clic derecho → "Abrir con..." → "Notepad"
+4. Edita lo que necesites (ver secciones abajo)
+5. Presiona Ctrl+S para guardar
+6. Cierra el archivo
+
+OPCIÓN 2: Usar Visual Studio Code
+──────────────────────────────────
+1. Abre VS Code
+2. Abre la carpeta del proyecto (chatbot-0.1)
+3. Busca vacantes.json en el explorador izquierdo
+4. Haz clic para abrirlo
+5. Edita lo que necesites
+6. Presiona Ctrl+S para guardar
+
+OPCIÓN 3: Usar Excel/Sheets (NO RECOMENDADO para JSON)
+────────────────────────────────────────────────────
+⚠️ NO abras este archivo directamente con Excel, puede romper el formato
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 3: ESTRUCTURA DEL ARCHIVO vacantes.json
+═══════════════════════════════════════════════════════════════════════════════
+
+El archivo tiene esta estructura:
+
+{
+  "vacantes": [
+    // Aquí van todas las vacantes (una por una)
+  ],
+  "areas": [
+    // Aquí van las áreas de la empresa
+  ]
+}
+
+REGLA IMPORTANTE: Cada vacante es un bloque que comienza con { y termina con }
+Si hay más de una vacante, deben estar separadas por comas.
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 4: ESTRUCTURA DE UNA VACANTE
+═══════════════════════════════════════════════════════════════════════════════
+
+Cada vacante contiene estos campos:
+
+{
+  "id": "prod-op-001",                    ← Identificador único (no repetir)
+  "area": "Producción",                   ← Área de la empresa
+  "puesto": "Operario de Producción",     ← Nombre del puesto
+  "tipo": "operativo",                    ← Tipo: "operativo" o "gerencial"
+  "descripcion": "Persona responsable de...",  ← Descripción del puesto
+  "requisitos": [                         ← Lista de requisitos
+    "Disponibilidad de horario flexible",
+    "Capacidad de trabajo en equipo",
+    "Atención al detalle"
+  ],
+  "responsabilidades": [                  ← Lista de responsabilidades
+    "Operar maquinaria",
+    "Realizar inspecciones"
+  ],
+  "requerimiento_cv": true,               ← ¿Se necesita CV? (true/false)
+  "salario_aproximado": "$1,500 - $1,800" ← Rango salarial
+}
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 5: PASO A PASO - AGREGAR UNA NUEVA VACANTE
+═══════════════════════════════════════════════════════════════════════════════
+
+Paso 1: Abre vacantes.json en Notepad
+
+Paso 2: Encuentra la última vacante en la lista (busca el último })
+
+Paso 3: Después del último } de una vacante, ANTES del cierre ], agrega una coma
+
+Paso 4: En una nueva línea, escribe tu nueva vacante:
+
+    {
+      "id": "cal-ing-002",
+      "area": "Calidad",
+      "puesto": "Técnico de Calidad",
+      "tipo": "operativo",
+      "descripcion": "Responsable de inspeccionar productos en línea de producción.",
+      "requisitos": [
+        "Atención al detalle",
+        "Disponibilidad de horario",
+        "Capacidad de manejo de equipos de medición"
+      ],
+      "responsabilidades": [
+        "Inspeccionar productos",
+        "Registrar resultados",
+        "Reportar anomalías"
+      ],
+      "requerimiento_cv": true,
+      "salario_aproximado": "$1,600 - $1,900"
+    }
+
+Paso 5: IMPORTANTE - Revisa que:
+  ✓ Cada { tenga su correspondiente }
+  ✓ Las comas estén en los lugares correctos
+  ✓ No haya errores de tipeo
+  ✓ El "id" sea único (no repetido)
+
+Paso 6: Guarda con Ctrl+S
+
+VERIFICACIÓN: Si abres el chatbot y ves la nueva vacante, ¡funcionó! ✅
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 6: EDITAR UNA VACANTE EXISTENTE
+═══════════════════════════════════════════════════════════════════════════════
+
+Paso 1: Abre vacantes.json
+
+Paso 2: Busca la vacante que quieres editar (por su ID o nombre)
+
+Paso 3: Modifica lo que necesites:
+  - Nombre del puesto
+  - Descripción
+  - Requisitos (agrega o elimina líneas)
+  - Salario
+  - Tipo (operativo/gerencial)
+
+Paso 4: Guarda con Ctrl+S
+
+EJEMPLO: Cambiar el salario de una vacante
+
+ANTES:
+"salario_aproximado": "$1,500 - $1,800"
+
+DESPUÉS:
+"salario_aproximado": "$1,600 - $1,900"
+
+═════════════════════════════════════════════════════════════════════════════
+
+EJEMPLO: Agregar más requisitos
+
+ANTES:
+"requisitos": [
+  "Disponibilidad",
+  "Trabajo en equipo"
+],
+
+DESPUÉS:
+"requisitos": [
+  "Disponibilidad",
+  "Trabajo en equipo",
+  "Experiencia en manufactura",
+  "Actitud positiva"
+],
+
+NOTA: Cada requisito entre comillas "", separados por comas
+
+═════════════════════════════════════════════════════════════════════════════
+
+EJEMPLO: Cambiar el tipo de puesto
+
+ANTES:
+"tipo": "operativo",
+
+DESPUÉS:
+"tipo": "gerencial",
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 7: ELIMINAR UNA VACANTE
+═══════════════════════════════════════════════════════════════════════════════
+
+Paso 1: Abre vacantes.json
+
+Paso 2: Encuentra la vacante completa (desde { hasta })
+
+Paso 3: Selecciona TODO el bloque de esa vacante (incluida la coma después si hay)
+
+Paso 4: Presiona Delete o Backspace
+
+Paso 5: Si eliminaste una vacante que estaba en el medio, asegúrate de que
+        la coma anterior esté bien colocada
+
+Paso 6: Guarda con Ctrl+S
+
+IMPORTANTE: Si eliminas una vacante, verifica que no queden comas sueltas
+Ejemplo INCORRECTO:
+      },
+      },  ← Coma sobrante
+    ]
+
+Ejemplo CORRECTO:
+      }
+    ]
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 8: AGREGAR UNA NUEVA ÁREA
+═══════════════════════════════════════════════════════════════════════════════
+
+Al final del archivo, hay una sección "areas":
+
+"areas": [
+  {
+    "nombre": "Producción",
+    "descripcion": "Área de fabricación..."
+  }
+]
+
+Para agregar una nueva área:
+
+1. Abre vacantes.json
+
+2. Busca la sección "areas" (al final del archivo)
+
+3. Antes del cierre ], agrega una coma después del último area
+
+4. Agrega tu nueva área:
+
+{
+  "nombre": "Recursos Humanos",
+  "descripcion": "Área encargada del reclutamiento y desarrollo de talento"
+}
+
+5. Guarda con Ctrl+S
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 9: LISTA COMPLETA DE CAMPOS EDITABLES
+═══════════════════════════════════════════════════════════════════════════════
+
+Campo                  | Tipo        | Requerido | Ejemplo
+─────────────────────────────────────────────────────────────────────────────
+id                     | Texto       | Sí ✓      | "prod-op-001"
+area                   | Texto       | Sí ✓      | "Producción"
+puesto                 | Texto       | Sí ✓      | "Operario de Producción"
+tipo                   | Texto       | Sí ✓      | "operativo" o "gerencial"
+descripcion            | Texto largo | Sí ✓      | "Responsable de..."
+requisitos             | Lista       | No        | ["Requisito 1", "Requisito 2"]
+responsabilidades      | Lista       | No        | ["Resp 1", "Resp 2"]
+requerimiento_cv       | true/false  | No        | true
+salario_aproximado     | Texto       | No        | "$1,500 - $1,800"
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 10: ERRORES COMUNES Y SOLUCIONES
+═══════════════════════════════════════════════════════════════════════════════
+
+ERROR: "JSON inválido" o "Error al parsear"
+───────────────────────────────────────────
+Causas más frecuentes:
+1. Falta una coma entre vacantes
+2. Un } o { no coinciden
+3. Hay comillas sin cerrar
+4. Espacio en blanco extraño
+
+SOLUCIÓN:
+- Revisa que cada { tenga su }
+- Verifica que haya comas entre objetos
+- Busca comillas sin cerrar
+- Usa un validador JSON online: jsonlint.com
+
+ERROR: El chatbot no muestra mi nueva vacante
+──────────────────────────────────────────────
+Causas:
+1. No guardaste el archivo
+2. Hay un error de sintaxis en tu JSON
+3. El área no existe
+
+SOLUCIÓN:
+- Presiona Ctrl+S en el editor
+- Valida tu JSON en jsonlint.com
+- Asegúrate de que el "area" existe en la sección "areas"
+
+ERROR: El chatbot se cuelga al cargar
+──────────────────────────────────────
+Causa: Casi siempre un error en el JSON
+
+SOLUCIÓN:
+- Abre vacantes.json en un validador JSON
+- Busca dónde está el error
+- Corrígelo y guarda
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 11: VALIDACIÓN RÁPIDA DE TU JSON
+═══════════════════════════════════════════════════════════════════════════════
+
+OPCIÓN 1: Usar un sitio online
+──────────────────────────────
+1. Ve a https://jsonlint.com/
+2. Copia el contenido de vacantes.json
+3. Pégalo en el validador
+4. Si hay errores, te los mostrará con la línea
+
+OPCIÓN 2: Usar VS Code
+──────────────────────
+VS Code automáticamente detecta errores JSON y te los muestra con una onda roja
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 12: CHECKLIST ANTES DE GUARDAR
+═══════════════════════════════════════════════════════════════════════════════
+
+Antes de guardar tu vacantes.json, verifica:
+
+☐ Cada { tiene su correspondiente }
+☐ Cada [ tiene su correspondiente ]
+☐ Las comas están en los lugares correctos
+☐ Los "id" son únicos (no repetidos)
+☐ El "area" existe en la sección "areas"
+☐ Los valores entre comillas no contienen comillas sin escapar
+☐ El tipo es "operativo" o "gerencial" (exactamente así)
+☐ No hay espacios extraños que rompan la sintaxis
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 13: CÓMO SABE EL CHATBOT DE LOS CAMBIOS
+═══════════════════════════════════════════════════════════════════════════════
+
+Cuando editas vacantes.json:
+
+1. EDITAS el archivo y GUARDAS (Ctrl+S)
+2. El chatbot CARGA automáticamente las vacantes al iniciar
+3. Los cambios aparecen la PRÓXIMA VEZ que alguien use el chatbot
+
+⚠️ Si el servidor está corriendo, puede que necesites REINICIARLO para que
+   cargue los cambios nuevos.
+
+REINICIAR EL SERVIDOR:
+- Presiona Ctrl+C en la terminal
+- Espera a que se cierre
+- Escribe: python app.py
+- Presiona Enter
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 14: CONTACTO Y SOPORTE
+═══════════════════════════════════════════════════════════════════════════════
+
+Si encuentras problemas:
+
+1. Valida tu JSON en jsonlint.com
+2. Revisa que no haya caracteres especiales (acentos, ñ)
+3. Comprueba que los "id" sean únicos
+4. Si aún no funciona, contacta al equipo técnico
+
+═══════════════════════════════════════════════════════════════════════════════
+
+¡Listo! Ya puedes editar las vacantes del chatbot sin tocar código. 🎉
+
+Cualquier duda, contacta al equipo de desarrollo.
+
+═══════════════════════════════════════════════════════════════════════════════
